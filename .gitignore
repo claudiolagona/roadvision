@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+
+data/raw/
+data/processed/yolo/
+data/processed/classical/
+data/processed/japan_objects_index.csv
+data/processed/japan_images_index.csv
+
+/yolo*.pt
+
+.idea/
+.vscode/
+.DS_Store
