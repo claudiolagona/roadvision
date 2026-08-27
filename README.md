@@ -52,28 +52,28 @@ The project follows this Computer Vision pipeline:
 RDD2022 images and XML annotations
             |
             v
-    Dataset preprocessing
+     Dataset preprocessing
             |
             v
-       Dataset analysis
+        Dataset analysis
             |
-      +-----+-----+
-      |           |
-      v           v
- HOG + SVM      YOLO11s
- Classical      Deep Learning
-      |           |
-      v           v
+       +----+----+
+       |         |
+       v         v
+   HOG + SVM   YOLO11s
+   Classical   Deep Learning
+       |         |
+       v         v
 Sliding Window  Fine-tuning
-   + NMS        + Augmentation
-      |           |
-      +-----+-----+
+    + NMS       + Augmentation
+       |         |
+       +----+----+
             |
             v
         Evaluation
             |
             v
-       Failure Analysis
+      Failure Analysis
             |
             v
         Image Demo
@@ -266,7 +266,7 @@ After selecting the final model using the validation set, it was evaluated on th
 | --------: | -----: | ------: | -----------: |
 |     0.538 |  0.488 |   0.490 |        0.219 |
 
-The final results are close to the validation results, indicating that the model maintains similar performance on unseen images.
+The final mAP@0.5 is close to the validation result, decreasing from 0.507 to 0.490 on the held-out test set.
 
 ---
 
@@ -278,19 +278,19 @@ The final model still presents some errors.
 
 ![Missed D10](results/yolo/error_examples/missed_D10.jpg)
 
-Some thin transverse cracks are not detected when they are small or have low visual contrast.
+In this example, several thin D10 cracks are missed. Their relatively small size and low visual contrast may contribute to the difficulty of detecting them.
 
 ### False Positive
 
 ![False Positive](results/yolo/error_examples/false_positive.jpg)
 
-Some road textures, shadows or markings can be confused with road damage.
+This example contains both correct detections and errors. Road texture, markings and shadows may contribute to false predictions, although the exact cause cannot be determined from a single image.
 
 ### Multiple Damages
 
 ![Multiple Damages](results/yolo/error_examples/multiple_damages.jpg)
 
-Images containing several damages with different sizes and appearances are more difficult and may contain both correct detections and missed objects.
+This example contains several damages with different sizes and appearances. The model detects some regions correctly while missing others, showing that complex scenes can still be difficult.
 
 ---
 
@@ -322,19 +322,19 @@ The project was developed with Python 3.12.
 
 Create a virtual environment:
 
-```bash
+```powershell
 python -m venv .venv
 ```
 
-Activate it on Windows:
+Activate it on Windows PowerShell:
 
-```bash
-.venv\Scripts\activate
+```powershell
+.\.venv\Scripts\Activate.ps1
 ```
 
 Install the required libraries:
 
-```bash
+```powershell
 python -m pip install -r requirements.txt
 ```
 
@@ -368,7 +368,7 @@ The raw dataset is excluded from Git.
 
 Build the dataset indexes:
 
-```bash
+```powershell
 python -m src.preprocessing.build_dataset_index
 ```
 
@@ -380,13 +380,13 @@ data/processed/japan_split.csv
 
 Prepare the dataset in YOLO format:
 
-```bash
+```powershell
 python -m src.preprocessing.prepare_yolo_dataset
 ```
 
 Run the dataset analysis:
 
-```bash
+```powershell
 python -m src.analysis.dataset_eda
 ```
 
@@ -396,25 +396,25 @@ python -m src.analysis.dataset_eda
 
 Build the HOG training dataset:
 
-```bash
+```powershell
 python -m src.classical.build_hog_dataset --split train
 ```
 
 Build the HOG validation dataset:
 
-```bash
+```powershell
 python -m src.classical.build_hog_dataset --split validation
 ```
 
 Train and evaluate the Linear SVM:
 
-```bash
+```powershell
 python -m src.classical.train_svm
 ```
 
 To run the sliding-window detector:
 
-```bash
+```powershell
 python -m src.classical.sliding_window_detector --image path/to/image.jpg
 ```
 
@@ -424,13 +424,13 @@ python -m src.classical.sliding_window_detector --image path/to/image.jpg
 
 Train the baseline model:
 
-```bash
+```powershell
 python -m src.deep.train_yolo --experiment baseline
 ```
 
 Train the model with data augmentation:
 
-```bash
+```powershell
 python -m src.deep.train_yolo --experiment augmented
 ```
 
@@ -446,7 +446,7 @@ models/yolo/best.pt
 
 The final YOLO model can be evaluated with:
 
-```bash
+```powershell
 python -m src.evaluation.evaluate_test
 ```
 
@@ -458,7 +458,7 @@ The evaluation uses the held-out test split.
 
 Run:
 
-```bash
+```powershell
 python demo/detect_image.py --image path/to/image.jpg
 ```
 
@@ -474,30 +474,59 @@ results/demo/
 
 ```text
 roadvision/
+├── .gitignore
 ├── README.md
 ├── requirements.txt
+│
 ├── data/
 │   └── processed/
 │       └── japan_split.csv
+│
 ├── demo/
 │   └── detect_image.py
+│
 ├── models/
 │   ├── classical/
 │   │   └── hog_linear_svm.joblib
 │   └── yolo/
 │       └── best.pt
+│
+├── report/
+│   └── RoadVision_Technical_Analysis.pdf
+│
 ├── results/
 │   ├── classical/
+│   │   └── hog_svm/
 │   ├── demo/
 │   ├── figures/
 │   └── yolo/
-├── src/
-│   ├── analysis/
-│   ├── classical/
-│   ├── deep/
-│   ├── evaluation/
-│   └── preprocessing/
-└── report/
+│       ├── baseline_yolo11s/
+│       ├── augmented_yolo11s/
+│       ├── final_test_yolo11s/
+│       └── error_examples/
+│
+└── src/
+    ├── analysis/
+    │   └── dataset_eda.py
+    │
+    ├── classical/
+    │   ├── build_hog_dataset.py
+    │   ├── hog_features.py
+    │   ├── sliding_window_detector.py
+    │   └── train_svm.py
+    │
+    ├── deep/
+    │   └── train_yolo.py
+    │
+    ├── evaluation/
+    │   └── evaluate_test.py
+    │
+    └── preprocessing/
+        ├── build_dataset_index.py
+        ├── create_split.py
+        ├── pascal_voc.py
+        ├── prepare_yolo_dataset.py
+        └── yolo_format.py
 ```
 
 ---
@@ -512,6 +541,8 @@ The model can also perform differently under different road conditions, lighting
 
 For this reason, results obtained on the RDD2022 Japan subset should not automatically be assumed to generalize to every country or road environment.
 
+The system should therefore be considered as an assistance tool, since false positives and missed damages are still possible.
+
 ---
 
 ## 20. Conclusion
@@ -520,6 +551,6 @@ RoadVision compares a traditional Computer Vision pipeline with a modern Deep Le
 
 The HOG + SVM approach provides a useful classical baseline and demonstrates the limitations of handcrafted features and sliding-window detection on complex road scenes.
 
-Fine-tuning YOLO11s significantly improves detection performance, especially after introducing data augmentation.
+The YOLO11s model with data augmentation achieved better validation performance than the YOLO11s baseline.
 
 The project demonstrates the complete Computer Vision workflow from dataset preparation and feature representation to model training, evaluation, failure analysis and inference on new images.
